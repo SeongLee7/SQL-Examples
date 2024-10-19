@@ -1,0 +1,106 @@
+--This SQL script contains a series of quesries focused on data retrueval, manipulation, and formatting.
+
+
+
+--1 Retrieve employees with 'J' in first name and a commission
+SELECT first_name, last_name, commission_pct, hire_date
+FROM hr.employees
+WHERE first_name LIKE '%J%' AND commission_pct IS NOT NULL
+ORDER BY 1;
+
+--2 Refine search with 'J' in first name and 'o' in last name:
+SELECT first_name, last_name, commission_pct, hire_date
+FROM hr.employees
+WHERE first_name LIKE '%J%' AND last_name LIKE '%o%' AND commission_pct IS NOT NULL
+ORDER BY 1;
+
+--3 Regions with names longer than 4 characters
+SELECT region_id, region_name, SUBSTR(region_name, -1, 1) AS "Last Letter in Region Name"
+FROM hr.regions
+WHERE LENGTH(region_name) > 4
+ORDER BY 2 DESC;
+
+--4 Assign employees to teams using MOD function
+SELECT first_name, last_name, employee_id, MOD(employee_id, 4) + 1 AS "Team#"
+FROM hr.employees
+FETCH FIRST 20 ROWS ONLY;
+
+--5 Count employees in each team
+SELECT MOD(employee_id, 4) + 1 AS "Team#", COUNT(MOD(employee_id, 4) + 1) AS "Employees on each Team"
+FROM hr.employees
+GROUP BY MOD(employee_id, 4) + 1
+ORDER BY 1;
+
+--6 Count of employees hired per year
+SELECT TO_CHAR(start_date, 'YYYY') AS "Year", COUNT(TO_CHAR(start_date, 'YYYY')) AS "Number of Employees"
+FROM hr.job_history
+GROUP BY TO_CHAR(start_date, 'YYYY')
+ORDER BY 1;
+
+--7 Average salary by job with filtering
+SELECT job_id, TO_CHAR(AVG(salary), '$999,999.00') AS "Average Salary", COUNT(job_id) AS "Total"
+FROM hr.employees
+HAVING AVG(salary) > 10000 AND COUNT(job_id) >= 2
+GROUP BY job_id;
+
+--8 Regions for a specific country
+SELECT region_name
+FROM hr.regions NATURAL JOIN hr.countries
+WHERE country_name = 'Canada';
+
+--9 Managers not in specific departments
+SELECT manager_id
+FROM hr.employees
+WHERE department_id = 20 OR department_id = 30
+MINUS 
+SELECT manager_id
+FROM hr.employees
+WHERE department_id = 50;
+
+--10 Formatting names for administrative employees
+SELECT SUBSTR(REPLACE(job_id, 'AD_', 'Administration Team Member: '), 1, 28) || SUBSTR(first_name, 1, 1) || '. ' || last_name AS "Initial and Last Name"
+FROM hr.employees
+WHERE job_id LIKE '%AD%'
+ORDER BY 1;
+
+--11 Calculating seconds in a year
+SELECT TO_CHAR(365 * 24 * 60 * 60, '999,999,999') AS "Seconds in a year"
+FROM dual;
+
+--12 Date arithmetic
+select TO_CHAR(to_date('2001-07-20 10:40:12', 'YYYY-MM-DD HH:MI:SS') - 2, 'DD-MON-YY HH24:MI:SS') AS "Subtract 2 Days", 
+    TO_CHAR(to_date('2001-07-20 10:40:12', 'YYYY-MM-DD HH:MI:SS') + 1/2, 'DD-MON-YY HH24:MI:SS') AS "Add Half a Day", 
+    TO_CHAR(to_date('2001-07-20 10:40:12', 'YYYY-MM-DD HH:MI:SS') + 4.5/24, 'DD-MON-YY HH24:MI:SS') AS "Add 4 and a Half Hours"
+FROM dual;
+
+--13 Formatted date
+SELECT TO_CHAR(date '2015-05-13', 'Day, Month YYYY') AS "Formatted Current Date"
+FROM dual;
+
+--14 Rounding numbers
+SELECT ROUND(9.58348) AS "Answer 1", ROUND(9.58348, 1) AS "Answer 1_1", ROUND(9.58348, 4) AS "Answer 3", ROUND(9.58348, 5) AS "Answer 2"
+FROM dual;
+
+--15 Date difference in years
+SELECT TRUNC((TO_DATE('08-15-2011', 'MM-DD-YYYY') - TO_DATE('12-04-1865', 'MM-DD-YYYY')) / 365) AS "Number of Years"
+FROM dual;
+
+--16 Last day of the current month
+SELECT LAST_DAY(sysdate) AS "Last Day of Month"
+FROM dual;
+
+--17 Categorizing course costs
+SELECT course_no, description,
+CASE cost
+    WHEN 1595 THEN 'High'
+    WHEN 1195 THEN 'Medium'
+    WHEN 1095 THEN 'Low'
+END AS "Category for Costs"
+FROM student.course
+ORDER BY 3;
+
+--18 Filtering students by first and last name
+SELECT last_name, first_name
+FROM student.student
+WHERE &&lastname LIKE 'M%' AND &&firstname LIKE 'M%'
+ORDER BY 1;

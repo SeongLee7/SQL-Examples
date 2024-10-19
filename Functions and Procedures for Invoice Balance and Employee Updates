@@ -1,0 +1,47 @@
+--This code demonstrates the use of functions and procedures to encapsulate logic in the database, as well as error handling and transaction control
+
+--1 Creating a function to calculate balance due
+CREATE OR REPLACE FUNCTION get_balance_due
+(
+    invoice_id_parameter NUMBER
+)
+return number as balance_due NUMBER;
+
+BEGIN
+    SELECT invoice_total - payment_total - credit_total AS "balance_due"
+    INTO balance_due
+    FROM AP.invoices
+    WHERE invoice_id = invoice_id_parameter;
+    RETURN balance_due;
+    END;
+    /
+    
+--2 Using the function to retrieve balance due
+SELECT vendor_id, invoice_number, get_balance_due(invoice_id) AS "balance_due"
+FROM AP.invoices
+WHERE invoice_number = 'P-0608';
+
+--3 Creating a procedure to update employee salary
+CREATE OR REPLACE PROCEDURE UPDATE_EMPLOYEE
+(
+    EMPLOYEE_ID_param NUMBER,
+    SALARY_param VARCHAR2
+)
+AS
+BEGIN
+    IF SALARY_param < 0 THEN
+        RAISE_APPLICATION_ERROR(-20900, 'SQL Error: ORA-20101: SALARY must be positive');
+    END IF;
+    
+    UPDATE employee_copy
+    SET employee_id = employee_id_param
+    WHERE salary = salary_param;
+    
+    COMMIT;
+END;
+/
+
+--4 Calling the procedure
+call update_employee('6', -3000);
+call update_employee('7', 4000);
+        

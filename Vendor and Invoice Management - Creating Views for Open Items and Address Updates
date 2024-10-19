@@ -1,0 +1,46 @@
+--This SQL code involves creating and using views to simplify the process of retrieving and summarizing data from the AP.vendors and AP.invoices tables
+
+--1 Create a view for Open Invoices
+CREATE VIEW open_items 
+AS SELECT vendor_name, invoice_number, invoice_total, (invoice_total - payment_total - credit_total) AS "Balance_Due"
+FROM AP.vendors JOIN AP.invoices
+ON vendors.vendor_id = invoices.vendor_id
+WHERE invoice_total  - payment_total - credit_total > 0
+ORDER BY vendor_name;
+
+SELECT * 
+FROM open_items;
+
+--2 Filter open items by balance due
+SELECT * FROM open_items 
+WHERE "Balance_Due" > 1000;
+
+--3 Create a summary view of open invoices
+CREATE VIEW open_items_summary 
+AS SELECT vendor_name, COUNT(payment_total) AS "OPEN_ITEM_COUNT", SUM(invoice_total - payment_total - credit_total) AS "OPEN_ITEM_TOTAL"
+FROM AP.invoices i JOIN AP.vendors v
+ON i.vendor_id = v.vendor_id
+WHERE payment_total = 0
+GROUP BY vendor_name
+ORDER BY 3 DESC;
+
+SELECT *
+FROM open_items_summary;
+
+--4 Limit the number of rows
+SELECT * 
+FROM open_items_summary 
+FETCH FIRST 5 ROWS ONLY;
+
+--5 Create a biew for vendor addresses
+CREATE VIEW vendor_address 
+AS SELECT vendor_id, vendor_address1, vendor_address2, vendor_city, vendor_state, vendor_zip_code
+FROM ap.vendors;
+
+SELECT *
+FROM vendor_address;
+
+--6 Update vendor address
+UPDATE vendor_address
+SET vendor_address2 = 'Ste 260'
+WHERE vendor_id = 4;

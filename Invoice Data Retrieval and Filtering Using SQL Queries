@@ -1,0 +1,104 @@
+--This SQL script performs a series of queries on the AP.INVOICES table, focusing on retrieving specific records based on conditions using the WHERE clause.
+
+
+--1 Select all columns from AP.INVOICES
+SELECT *
+FROM AP.invoices;
+
+--2 Find invoice IDS with a specific invoice total
+SELECT INVOICE_ID
+FROM AP.INVOICES
+WHERE INVOICE_TOTAL = 356.48;
+
+--3 Retrieve invoice information for specific invoice IDs
+SELECT INVOICE_ID, INVOICE_NUMBER, invoice_date
+FROM AP.INVOICES
+WHERE INVOICE_ID IN(81,82,90);
+
+--4 Find invoices for vendors with ID less than or equal to 44
+SELECT INVOICE_ID, VENDOR_ID
+FROM AP.INVOICES
+WHERE VENDOR_ID <= 44;
+
+--5 Find invoices with non-zero credit total
+SELECT INVOICE_ID, VENDOR_ID, credit_total
+FROM AP.INVOICES
+WHERE CREDIT_TOTAL <> 0;
+
+--6 Find invoices with a specific date
+SELECT INVOICE_ID, invoice_date
+FROM AP.INVOICES
+WHERE INVOICE_DATE = '01-MAY-14';
+
+--7 Find invoices with payment totals between 100 and 115
+SELECT INVOICE_ID, INVOICE_DATE, payment_total
+FROM AP.INVOICES
+WHERE PAYMENT_TOTAL BETWEEN 100 AND 115;
+
+--8 Find invoices within a date range
+SELECT INVOICE_ID, INVOICE_DATE
+FROM AP.INVOICES
+WHERE INVOICE_DATE BETWEEN '01-MAY-14' AND '08-MAY-14';
+
+--9 Find invoices with Numbers starting with 'P'
+SELECT INVOICE_ID, INVOICE_NUMBER
+FROM AP.INVOICES
+WHERE INVOICE_NUMBER LIKE 'P%';
+
+--10 Find invoices with specific pattern in number
+SELECT INVOICE_ID, INVOICE_NUMBER
+FROM AP.INVOICES
+WHERE INVOICE_NUMBER LIKE 'P_3';
+
+--11 Find invoices ending with '_X'
+SELECT INVOICE_ID, INVOICE_NUMBER
+FROM AP.INVOICES
+WHERE INVOICE_NUMBER LIKE '%_X';
+
+--12 Find invoices containing '11' but not starting or ending with '1'
+SELECT INVOICE_ID, INVOICE_NUMBER
+FROM AP.INVOICES
+WHERE INVOICE_NUMBER LIKE '%11%'
+AND INVOICE_NUMBER NOT LIKE '1%'
+AND INVOICE_NUMBER NOT LIKE '%1';
+
+--13 Find invoices with specific number pattern
+SELECT INVOICE_ID, INVOICE_NUMBER
+FROM AP.INVOICES
+WHERE INVOICE_NUMBER LIKE '_0_3%';
+
+--14 Find invoices with no payment date(first 10 rows)
+SELECT INVOICE_ID, PAYMENT_DATE
+FROM AP.INVOICES
+WHERE PAYMENT_DATE IS null
+FETCH FIRST 10 ROWS ONLY;
+
+--15 Find invoices with payment date(first 10 rows)
+SELECT INVOICE_ID, PAYMENT_DATE
+FROM AP.INVOICES
+WHERE PAYMENT_DATE IS NOT null
+FETCH FIRST 10 ROWS ONLY;
+
+--16 Find invoices with zero payment total and total greater than 100
+SELECT INVOICE_ID, PAYMENT_TOTAL, INVOICE_TOTAL
+FROM AP.INVOICES
+WHERE PAYMENT_TOTAL = 0 AND INVOICE_TOTAL >100;
+
+--17 Find invoices with specific payment and invoice totals(first 10 rows)
+SELECT INVOICE_ID, PAYMENT_TOTAL, INVOICE_TOTAL
+FROM AP.INVOICES
+WHERE PAYMENT_TOTAL BETWEEN 0 AND 25
+OR INVOICE_TOTAL > 100
+FETCH FIRST 10 ROWS ONLY;
+
+--18 Find invoices with specific terms ID
+SELECT INVOICE_ID, TERMS_ID
+FROM AP.INVOICES
+WHERE terms_id NOT IN(1,2,3,4);
+
+--19 Find invoices with specific dates and payment conditions
+SELECT INVOICE_ID, INVOICE_DATE, PAYMENT_TOTAL
+FROM AP.INVOICES
+WHERE INVOICE_DATE = '01-MAY-14'
+OR INVOICE_DATE = '17-MAY-14'
+AND PAYMENT_TOTAL = 0;

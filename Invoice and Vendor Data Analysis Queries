@@ -1,0 +1,126 @@
+-- This SQL script contains queries that analyze invoices and vendors. The queries focus on counting records, calculating totals and averages, grouping by dates or categories, and applying filters to summarize information.
+
+--1 Count the total number of invoices
+SELECT COUNT(*) "Number of Invoices"
+FROM ap.INVOICES;
+
+--2 Count the number of valid payment dates
+SELECT COUNT(*) "Number of Valid Payment Dates"
+FROM ap.invoices
+WHERE PAYMENT_DATE IS NOT NULL;
+
+--3 Count the number of NULL payments
+SELECT COUNT(*) "Number of Null Payment Dates"
+FROM ap.INVOICES
+WHERE PAYMENT_DATE IS NULL;
+
+--4 Retreive unique non-NULL payment dates
+SELECT DISTINCT PAYMENT_DATE 
+FROM AP.INVOICES
+WHERE PAYMENT_DATE IS NOT NULL
+ORDER BY PAYMENT_DATE;
+
+--5 Count the number ofdistinct payment dates
+SELECT COUNT(DISTINCT PAYMENT_DATE) AS "Number of Diff. Payment Dates"
+FROM AP.INVOICES;
+
+--6 Calculate the total invoice amount
+SELECT TO_CHAR(SUM(INVOICE_TOTAL), '$999,999.99') AS "Total Invoice Amount" 
+FROM AP.INVOICES;
+
+--7 Calculate the average invoice amount (rounded)
+SELECT ROUND(AVG(INVOICE_TOTAL),3) AS "Average Invoice Amount"
+FROM AP.INVOICES;
+
+--8 Calculate the average invoice amount (rounded)
+SELECT TRUNC(AVG(INVOICE_TOTAL),0) AS "Average Invoice Amount"
+FROM AP.INVOICES;
+
+--9 Retrieve the minimum and maximum invoice totals
+SELECT MIN(INVOICE_TOTAL) AS "Lowest Invoice Total",
+       MAX(INVOICE_TOTAL) AS "Highest Invoice Total"
+FROM AP.INVOICES;
+
+--10 Format the minimum and maximum invoice totals
+SELECT TO_CHAR(MIN(INVOICE_TOTAL),'$999,999.99') AS "Lowest Invoice Total",
+       TO_CHAR(MAX(INVOICE_TOTAL),'$999,999.99') AS "Highest Invoice Total"
+FROM AP.INVOICES;
+
+--11 Retrieve the last vendor in alphabetical order
+SELECT MAX(vendor_name) AS "Last Vendor"
+FROM ap.vendors;
+
+--12 Find the earliest invoice date
+SELECT MIN(INVOICE_DATE)
+FROM ap.invoices;
+
+--13 Count the number of invoices per date
+SELECT INVOICE_DATE, COUNT(*) AS "Invoices per Date"
+FROM ap.invoices
+GROUP BY invoice_date
+ORDER BY invoice_date;
+
+--14 Count the number of invoices with a total less than $10
+SELECT INVOICE_TOTAL, 
+       COUNT(*) AS "Invoices Less Than $10.00"
+FROM ap.invoices
+WHERE invoice_total < 10
+GROUP BY INVOICE_TOTAL
+ORDER BY INVOICE_TOTAL;
+
+--15 Count the number of vendors per state
+SELECT vendor_state, 
+       COUNT(*) AS "Vendors per State"
+FROM ap.vendors
+GROUP BY vendor_state
+ORDER BY vendor_state;
+
+--16 Count the number of vendors per state with at least 3 vendors
+SELECT vendor_state, 
+       COUNT(*) AS "Vendors per State"
+FROM ap.vendors
+HAVING COUNT(*) >= 3
+GROUP BY VENDOR_STATE
+ORDER BY COUNT(*) DESC;
+
+--17 Count the number of invoices per terms ID
+SELECT terms_id,
+       COUNT(*) AS "Number in Terms Id Category"
+FROM ap.invoices
+GROUP BY terms_id
+ORDER BY terms_id;
+
+--18 Count the number of invoices issued in June 2014
+SELECT invoice_date,
+       COUNT(*) AS "Invoices Per Date"
+FROM ap.invoices
+WHERE invoice_date >= '01-JUN-14' AND invoice_date < '01-JUL-14'
+GROUP BY invoice_date
+ORDER BY invoice_date;
+
+--19 Same as Query 18, but using HAVING
+SELECT invoice_date,
+       COUNT(*) AS "Invoices per Date"
+FROM ap.invoices
+HAVING invoice_date >= '01-JUN-14' AND invoice_date < '01-JUL-14'
+GROUP BY invoice_date
+ORDER BY invoice_date;
+
+--20 Calculate the difference in days between invoice due date and invoice date
+SELECT invoice_due_date - invoice_date AS "Difference in Days",
+       COUNT(invoice_due_date - invoice_date) AS "How Many?"
+FROM ap.invoices
+GROUP BY invoice_due_date - invoice_date
+ORDER BY invoice_due_date - invoice_date DESC;
+
+
+
+
+
+
+
+
+
+
+
+

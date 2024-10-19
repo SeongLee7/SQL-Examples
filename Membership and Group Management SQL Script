@@ -1,0 +1,69 @@
+-- This SQL code is performing a series of operations related to the creation and manipulation of three tables: members, groups, and members_groups, and includes insertion of data, querying, and schema modification.
+
+--table 1
+CREATE TABLE members
+(
+    member_id NUMBER PRIMARY KEY,
+    first_name VARCHAR2(35) NOT NULL,
+    last_name VARCHAR2(35) NOT NULL,
+    address VARCHAR2(100),
+    city VARCHAR2(50),
+    state CHAR(2),
+    phone CHAR(12) UNIQUE
+);
+
+--table 2
+CREATE TABLE groups
+(
+	group_id NUMBER PRIMARY KEY,
+	group_name VARCHAR2(75)
+);
+
+--table 3
+CREATE TABLE members_groups
+(
+member_id NUMBER NOT NULL,
+group_id NUMBER NOT NULL,
+FOREIGN KEY(member_id) REFERENCES members(member_id),
+FOREIGN KEY(group_id) REFERENCES groups(group_id)
+);
+
+--4 Inserting Data
+INSERT INTO members VALUES (1, 'John', 'Smith', '334 Valencia St.', 'San Francisco', 'CA', '415-942-1901');
+INSERT INTO members VALUES (2, 'Jane', 'Doe', '872 Chetwood St.', 'Oakland', 'CA', '510-123-4567');
+INSERT INTO groups VALUES (1, 'Book Club');
+INSERT INTO groups VALUES (2, 'Bicycle Coalition');
+INSERT INTO members_groups VALUES (1, 2);
+INSERT INTO members_groups VALUES (2, 1);
+INSERT INTO members_groups VALUES (2, 2);
+
+SELECT g.group_name, m.last_name, m.first_name
+FROM members_groups mg
+INNER JOIN 
+    groups g ON mg.group_id = g.group_id
+INNER JOIN members m
+    ON mg.member_id = m.member_id;
+    
+--5 Creating sequences for auto-incrementing IDS
+CREATE SEQUENCE memberID
+START WITH 3;
+
+CREATE SEQUENCE groupID
+START WITH 3;
+
+--6 Inserting a new group
+INSERT INTO groups VALUES (groupID.NEXTVAL, 'Golf Club');
+SELECT * FROM groups;
+
+--7 Altering the members table
+ALTER TABLE members
+ADD
+(
+annual_due DECIMAL(5,2) DEFAULT 52.50,
+payment_date DATE
+);
+
+--8 Altering the groups table and insering data
+ALTER TABLE groups
+ADD UNIQUE(group_name);
+INSERT INTO groups VALUES (groupID.NEXTVAL, 'Golf Club');

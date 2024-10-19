@@ -1,0 +1,51 @@
+--This SQL script involves managing data related to invoices and vendors.
+
+--1 Creating and Inserting Data into invoicesCopy
+CREATE TABLE invoicesCopy AS SELECT *
+FROM ap.invoices;
+
+SELECT *
+FROM invoicesCopy;
+
+INSERT INTO invoicesCopy VALUES( 115, 32, 'AX-014-027', '01-MAY-18', 434.58, 0, 0, 2, '31-MAY-18', null);
+INSERT INTO invoicesCopy VALUES( 116, 32, 'AX-014-031', '01-MAY-18', 555.58, 0, 0, 1, '31-MAY-18', null);
+
+--2 Selecting data from invoicesCopy
+SELECT *
+FROM invoicesCopy;
+
+--3 Creating a copy of the vendors table
+CREATE TABLE vendorsCopy AS SELECT *
+FROM ap.vendors;
+
+SELECT *
+FROM vendorsCopy;
+
+UPDATE vendorsCopy
+SET default_account_number = 403
+WHERE default_account_number = 400;
+
+--4 Displaying updated data from vendorsCopy
+SELECT *
+FROM vendorsCopy
+WHERE default_account_number = 403;
+
+--5 Updating terms_id in invoicesCopy
+UPDATE invoicesCopy
+SET terms_id = 3
+WHERE terms_id = 2;
+
+--6 Displaying updated data from invoicesCopy
+SELECT *
+FROM invoicesCopy
+WHERE terms_id = 3;
+
+--7 Deleting Rows from invoicesCopy
+DELETE
+FROM invoicesCopy
+WHERE invoice_id = 112 OR invoice_id = 114;
+
+--8 Selecting a range of invoices
+SELECT *
+FROM invoicesCopy
+WHERE invoice_id BETWEEN 100 AND 115;

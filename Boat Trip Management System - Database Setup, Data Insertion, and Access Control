@@ -1,0 +1,105 @@
+--This SQL code is focused on setting up a database system for managing boats, captains, destinations, and trips. It involves creating tables, adding constraints, inserting data, and managing views, indexes, and permissions.
+
+--1 Creating sequence
+CREATE SEQUENCE primary_key_sequence
+START WITH 1
+INCREMENT BY 1
+MINVALUE 0
+MAXVALUE 9999999
+cycle;
+
+--2 Creating tables
+CREATE TABLE BOAT 
+(   ID NUMBER DEFAULT primary_key_sequence.nextval PRIMARY KEY,
+REGISTRATION_NUMBER VARCHAR2(20) NOT NULL UNIQUE,
+NAME VARCHAR2(30) NOT NULL
+);
+
+CREATE TABLE CAPTAIN 
+(   ID NUMBER DEFAULT primary_key_sequence.nextval PRIMARY KEY,
+FIRST_NAME VARCHAR2(20) NOT NULL,
+LAST_NAME VARCHAR2(20) NOT NULL,
+MOBILE_PHONE_NUMBER NUMBER NOT NULL
+);
+
+CREATE TABLE DESTINATION 
+(   ID NUMBER DEFAULT primary_key_sequence.nextval PRIMARY KEY,
+NAME VARCHAR2(50) NOT NULL
+);
+
+CREATE TABLE TRIP (
+ID NUMBER DEFAULT primary_key_sequence.nextval PRIMARY KEY,
+BOAT_ID NUMBER,
+CAPTAIN_ID NUMBER,
+DESTINATION_ID NUMBER,
+NUMBER_OF_GUESTS NUMBER NOT NULL,
+FOREIGN KEY (BOAT_ID) REFERENCES BOAT(ID),
+FOREIGN KEY (CAPTAIN_ID) REFERENCES CAPTAIN(ID),
+FOREIGN KEY (DESTINATION_ID) REFERENCES DESTINATION(ID)
+);
+
+--3 Altering tables
+--for BOAT table
+ALTER TABLE BOAT ADD CAPACITY NUMBER NOT NULL;
+ALTER TABLE BOAT ADD REGISTRATION_EXP_DATE DATE NOT NULL;
+
+-- for CAPTAIN table
+ALTER TABLE CAPTAIN RENAME COLUMN mobile_phone_number TO phone_number;
+
+-- for TRIP table
+ALTER TABLE TRIP ADD number_of_crew NUMBER NOT NULL;
+ALTER TABLE TRIP ADD start_date DATE NOT NULL;
+ALTER TABLE TRIP ADD CONSTRAINT NUMBER_OF_CREW_CHECK NOT NULL;
+ALTER TABLE TRIP RENAME TRIP TO TRIP_DETAILS;
+
+--4 Inserting Data
+INSERT INTO BOAT
+VALUES (DEFAULT, 'FL-12345', 'PRANCING SEA HORSE', 6, '31-DEC-19');
+
+INSERT INTO BOAT
+VALUES (DEFAULT, 'FL-54321', 'SLOW AND STADY', 11, '31-DEC-20');
+
+INSERT INTO BOAT
+VALUES (DEFAULT, 'FL-10101', 'EAT MY BUBBLES', 3, '31-DEC-21');
+
+INSERT INTO CAPTAIN
+VALUES (DEFAULT, 'Becka', 'Swifterson', 1112221234);
+
+INSERT INTO CAPTAIN
+VALUES (DEFAULT, 'Birdy', 'Bold', 2223331234);
+
+INSERT INTO DESTINATION
+VALUES (DEFAULT, 'FANCY KEY');
+
+INSERT INTO DESTINATION
+VALUES (DEFAULT, 'FUN CAY');
+
+--given to run
+--Performing an insert operation into the trip_details table
+/*
+insert into trip_details (boat_id, captain_id, destination_id, number_of_guests, number_of_crew,start_date)
+    SELECT
+        (SELECT id from boat where name = 'EAT MY BUBBLES'),
+        (SELECT id from captain where first_name = 'Becka'),
+        (SELECT id from destination where name = 'FUN CAY'),
+        2,
+        1,
+        sysdate+14
+    from dual;
+commit;
+*/
+
+--5 Creating a view
+CREATE VIEW v_avaliable_trips AS
+    SELECT d.NAME AS "DESTINATION", t.start_date AS "TRIP_LEAVES_ON", t.boat_id AS "ON_BOAT", t.captain_id AS "WITH_CAPTAIN", t.number_of_guests+1 AS "MAX_NUMBER_OF_GUESTS"
+FROM DESTINATION d JOIN trip_details t
+    ON d.destination_id = t.destination_id;
+
+-- 6 Creating an index
+CREATE INDEX fk_boat_id_ix ON boat_id (trip_details);
+
+-- 7 Granting permission
+GRANT SELECT ON v_available_trips TO public;
+
+-- 8 Creating a public synonym 
+CREATE PUBLIC SYNONYM tripsAvailability FOR v_available_trips; 
